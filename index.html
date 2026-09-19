@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Meal Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg: #f7f1eb;
+        --panel: #fffdfb;
+        --panel-strong: #fff5ee;
+        --panel-soft: #f5efe9;
+        --primary: #f58b53;
+        --primary-dark: #c96b35;
+        --secondary: #7ebd72;
+        --text: #1d1d1f;
+        --muted: #6d6763;
+        --border: rgba(24, 22, 20, 0.09);
+        --shadow: 0 18px 40px rgba(103, 85, 60, 0.12);
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(145deg, #fdf4ee 0%, #f0e4d8 100%);
+        font-family: "Inter", sans-serif;
+        color: var(--text);
+      }
+
+      button,
+      a {
+        font: inherit;
+      }
+
+      .app-shell {
+        width: min(1280px, calc(100vw - 40px));
+        min-height: 860px;
+        background: rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.38);
+        border-radius: 34px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        overflow: hidden;
+      }
+
+      .sidebar {
+        background: rgba(255, 250, 247, 0.8);
+        padding: 32px 22px 18px;
+        border-right: 1px solid var(--border);
+      }
+
+      .brand-wrap {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 6px 8px 26px;
+      }
+
+      .brand-mark {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        color: white;
+        background: linear-gradient(135deg, #f69d6a 0%, #f48d5d 100%);
+        box-shadow: 0 12px 30px rgba(246, 154, 106, 0.42);
+      }
+
+      .brand-name,
+      .brand-sub {
+        font-weight: 700;
+        line-height: 1.15;
+      }
+
+      .brand-sub {
+        color: var(--muted);
+      }
+
+      .nav {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .nav-item {
+        text-decoration: none;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        font-weight: 600;
+        color: #3f3b39;
+        transition: 0.2s ease;
+      }
+
+      .nav-item.active {
+        background: linear-gradient(135deg, rgba(244, 164, 111, 0.18), rgba(244, 164, 111, 0.08));
+        color: var(--primary-dark);
+      }
+
+      .nav-item:hover {
+        background: rgba(80, 77, 71, 0.04);
+      }
+
+      .icon {
+        display: inline-grid;
+        place-items: center;
+        width: 20px;
+        height: 20px;
+        font-size: 1.1rem;
+      }
+
+      .sidebar-card {
+        margin-top: auto;
+        background: linear-gradient(180deg, #fffaf4 0%, #f9f3ef 100%);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 18px 16px 14px;
+        margin-top: 40px;
+      }
+
+      .card-eyebrow,
+      .eyebrow {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.74rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+
+      .score-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .score-circle {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background: conic-gradient(var(--primary) 0 88%, #f2e8e1 88% 100%);
+        position: relative;
+      }
+
+      .score-circle::before {
+        content: "";
+        position: absolute;
+        inset: 8px;
+        border-radius: 50%;
+        background: #fffaf7;
+      }
+
+      .score-circle span {
+        position: relative;
+        z-index: 1;
+        font-size: 0.9rem;
+        font-weight: 800;
+      }
+
+      .sidebar-card h3 {
+        margin: 0;
+        font-size: 1.1rem;
+      }
+
+      .sidebar-card p {
+        margin: 6px 0 0;
+        font-size: 0.82rem;
+        line-height: 1.5;
+        color: var(--muted);
+      }
+
+      .main-panel {
+        padding: 28px 22px 22px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 28px;
+      }
+
+      .topbar h1 {
+        margin: 6px 0 0;
+        font-size: clamp(2rem, 2vw + 1rem, 2.7rem);
+        letter-spacing: -0.06em;
+      }
+
+      .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      button {
+        border: none;
+        cursor: pointer;
+      }
+
+      .ghost-btn,
+      .primary-btn {
+        border-radius: 14px;
+        padding: 12px 18px;
+        font-weight: 700;
+      }
+
+      .ghost-btn {
+        background: rgba(245, 139, 83, 0.08);
+        color: var(--primary-dark);
+      }
+
+      .primary-btn {
+        background: linear-gradient(135deg, #f7ad79, var(--primary));
+        color: white;
+        box-shadow: 0 12px 25px rgba(245, 139, 83, 0.25);
+      }
+
+      .hero-card {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+        background: linear-gradient(140deg, #f7f4ef 0%, #f8efe7 100%);
+        border: 1px solid rgba(130, 104, 66, 0.08);
+        border-radius: 30px;
+        padding: 22px 24px;
+        gap: 18px;
+      }
+
+      .hero-content {
+        padding: 18px 14px 14px 8px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(126, 189, 114, 0.12);
+        color: #3c7d3d;
+        border-radius: 999px;
+        padding: 7px 12px;
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .hero-card h2 {
+        margin: 18px 0 14px;
+        font-size: clamp(2rem, 2vw + 0.8rem, 3rem);
+        letter-spacing: -0.06em;
+        line-height: 1;
+      }
+
+      .hero-copy {
+        max-width: 560px;
+        color: var(--muted);
+        font-size: 1rem;
+        line-height: 1.7;
+        margin: 0;
+      }
+
+      .hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-top: 20px;
+      }
+
+      .hero-meta span {
+        background: rgba(255, 255, 255, 0.7);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #403b39;
+      }
+
+      .hero-visual {
+        position: relative;
+        min-height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .food-plate {
+        width: min(100%, 320px);
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background:
+          radial-gradient(circle at center, #fff 0 15%, #f6d28d 15% 32%, #e5d4bf 32% 52%, #b2d8a5 52% 59%, #79a65f 59% 68%, #d97a49 68% 76%, #fbe0ac 76% 100%);
+        box-shadow: inset 0 14px 28px rgba(103, 64, 37, 0.16), 0 24px 40px rgba(129, 95, 74, 0.12);
+        position: relative;
+      }
+
+      .food-plate::before,
+      .food-plate::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+      }
+
+      .food-plate::before {
+        width: 42%;
+        height: 42%;
+        background: #fbf0da;
+        left: 18%;
+        top: 26%;
+        box-shadow: 110px 30px 0 18px #f7a66d, 30px 110px 0 20px #a8d48d, 120px 100px 0 14px #f7c27a;
+      }
+
+      .food-plate::after {
+        width: 56%;
+        height: 56%;
+        border: 10px solid rgba(255, 255, 255, 0.38);
+        left: 22%;
+        top: 22%;
+      }
+
+      .float-badge {
+        position: absolute;
+        top: 18px;
+        right: 8px;
+        background: rgba(255, 255, 255, 0.85);
+        border: 1px solid rgba(34, 31, 29, 0.08);
+        color: var(--primary-dark);
+        font-weight: 800;
+        font-size: 0.8rem;
+        border-radius: 14px;
+        padding: 10px 12px;
+        box-shadow: 0 12px 26px rgba(84, 64, 46, 0.12);
+      }
+
+      .content-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) 340px;
+        gap: 22px;
+        margin-top: 28px;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 18px;
+      }
+
+      .section-header h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        letter-spacing: -0.04em;
+      }
+
+      .section-header a {
+        color: var(--primary-dark);
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .meal-list {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .meal-item {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 190px 1fr;
+        gap: 18px;
+        background: rgba(255, 255, 255, 0.5);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 12px 14px 12px 12px;
+      }
+
+      .meal-item.featured {
+        background: linear-gradient(135deg, rgba(255, 248, 243, 0.9), rgba(255, 255, 255, 0.4));
+      }
+
+      .meal-image {
+        border-radius: 18px;
+        min-height: 150px;
+        background-size: cover;
+        background-position: center;
+      }
+
+      .image-one {
+        background-image: url('https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=800&q=80');
+      }
+
+      .image-two {
+        background-image: url('https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80');
+      }
+
+      .meal-info {
+        padding: 6px 4px 4px 0;
+      }
+
+      .meal-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+      }
+
+      .meal-head h4 {
+        margin: 0;
+        font-size: 1.35rem;
+        letter-spacing: -0.04em;
+      }
+
+      .mini-tag {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 42px;
+        height: 30px;
+        border-radius: 999px;
+        background: rgba(255, 217, 146, 0.24);
+        color: #8d5d16;
+        font-weight: 800;
+        font-size: 0.8rem;
+      }
+
+      .meal-info p {
+        margin: 10px 0 18px;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .meal-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .meal-footer span {
+        font-weight: 800;
+        color: var(--text);
+      }
+
+      .meal-footer button {
+        background: rgba(245, 139, 83, 0.11);
+        color: var(--primary-dark);
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-weight: 700;
+      }
+
+      .insight-panel,
+      .mini-panel {
+        background: linear-gradient(180deg, rgba(255, 252, 249, 0.9) 0%, rgba(250, 244, 239, 0.92) 100%);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 18px 18px 20px;
+      }
+
+      .compact {
+        margin-bottom: 12px;
+      }
+
+      .goal-ring {
+        width: 148px;
+        height: 148px;
+        margin: 14px auto 18px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: conic-gradient(var(--primary) 0 72%, #f5d5bd 72% 100%);
+        position: relative;
+      }
+
+      .goal-ring::before {
+        content: "";
+        position: absolute;
+        inset: 12px;
+        border-radius: 50%;
+        background: rgba(255, 252, 250, 1);
+      }
+
+      .ring-inner {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .ring-inner strong {
+        font-size: 2rem;
+        letter-spacing: -0.06em;
+      }
+
+      .ring-inner span {
+        font-size: 0.76rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 700;
+      }
+
+      .goal-metrics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 4px;
+      }
+
+      .goal-metrics > div {
+        background: rgba(255, 255, 255, 0.5);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 12px 10px;
+      }
+
+      .label {
+        display: block;
+        color: var(--muted);
+        font-size: 0.8rem;
+        margin-bottom: 6px;
+      }
+
+      .goal-metrics strong {
+        font-size: 1.2rem;
+      }
+
+      .mini-panel {
+        margin-top: 20px;
+      }
+
+      .pick-list {
+        list-style: none;
+        padding: 0;
+        margin: 18px 0 0;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .pick-list li {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 10px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.42);
+        border: 1px solid var(--border);
+        font-weight: 600;
+      }
+
+      .pick-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      .green { background: #6aad62; }
+      .orange { background: #ef8b4d; }
+      .red { background: #e06b52; }
+
+      @media (max-width: 980px) {
+        .app-shell {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+
+        .content-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 650px) {
+        .app-shell {
+          width: min(100vw - 20px, 680px);
+          min-height: auto;
+          border-radius: 24px;
+        }
+
+        .main-panel {
+          padding: 18px 16px 16px;
+        }
+
+        .topbar {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .topbar-actions {
+          width: 100%;
+          justify-content: flex-start;
+        }
+
+        .hero-card {
+          grid-template-columns: 1fr;
+          padding: 18px;
+        }
+
+        .meal-item {
+          grid-template-columns: 1fr;
+        }
+
+        .meal-image {
+          min-height: 180px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand-wrap">
+          <div class="brand-mark">S</div>
+          <div>
+            <div class="brand-name">Smart Meal</div>
+            <div class="brand-sub">Assistant</div>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <a class="nav-item active" href="#">
+            <span class="icon">⌂</span>
+            <span>Dashboard</span>
+          </a>
+          <a class="nav-item" href="#">
+            <span class="icon">⊞</span>
+            <span>Meal planner</span>
+          </a>
+          <a class="nav-item" href="#">
+            <span class="icon">✦</span>
+            <span>Favorites</span>
+          </a>
+          <a class="nav-item" href="#">
+            <span class="icon">◌</span>
+            <span>Progress</span>
+          </a>
+          <a class="nav-item" href="#">
+            <span class="icon">⚙</span>
+            <span>Settings</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-card">
+          <p class="card-eyebrow">Nutrition score</p>
+          <div class="score-row">
+            <div class="score-circle">
+              <span>88%</span>
+            </div>
+            <div>
+              <h3>Great balance</h3>
+              <p>You're on track with protein and fiber goals.</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Good morning,</p>
+            <h1>Meal plan for today</h1>
+          </div>
+
+          <div class="topbar-actions">
+            <button class="ghost-btn">Weekly plan</button>
+            <button class="primary-btn">Generate meal</button>
+          </div>
+        </header>
+
+        <section class="hero-card">
+          <div class="hero-content">
+            <p class="pill">High protein</p>
+            <h2>Avocado egg toast with greens</h2>
+            <p class="hero-copy">
+              Crisp toast, creamy avocado, soft eggs and a side of microgreens for a balanced and energizing start.
+            </p>
+
+            <div class="hero-meta">
+              <span>540 kcal</span>
+              <span>20g protein</span>
+              <span>8 min prep</span>
+            </div>
+          </div>
+
+          <div class="hero-visual">
+            <div class="float-badge">+19% protein</div>
+            <div class="food-plate"></div>
+          </div>
+        </section>
+
+        <section class="content-grid">
+          <div class="left-column">
+            <div class="section-header">
+              <h3>Breakfast ideas</h3>
+              <a href="#">See all</a>
+            </div>
+
+            <div class="meal-list">
+              <article class="meal-item featured">
+                <div class="meal-image image-one"></div>
+                <div class="meal-info">
+                  <div class="meal-head">
+                    <h4>Berry yogurt bowl</h4>
+                    <span class="mini-tag">4.8</span>
+                  </div>
+                  <p>Greek yogurt, granola, chia, fresh berries</p>
+                  <div class="meal-footer">
+                    <span>320 kcal</span>
+                    <button>View recipe</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="meal-item">
+                <div class="meal-image image-two"></div>
+                <div class="meal-info">
+                  <div class="meal-head">
+                    <h4>Apple oat shake</h4>
+                    <span class="mini-tag">4.6</span>
+                  </div>
+                  <p>Oats, apple, cinnamon, milk, almond butter</p>
+                  <div class="meal-footer">
+                    <span>410 kcal</span>
+                    <button>View recipe</button>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="right-column">
+            <div class="insight-panel">
+              <div class="section-header compact">
+                <h3>Today's goal</h3>
+                <a href="#">Edit</a>
+              </div>
+
+              <div class="goal-ring">
+                <div class="ring-inner">
+                  <strong>72%</strong>
+                  <span>of goal</span>
+                </div>
+              </div>
+
+              <div class="goal-metrics">
+                <div>
+                  <span class="label">Protein</span>
+                  <strong>89g</strong>
+                </div>
+                <div>
+                  <span class="label">Water</span>
+                  <strong>2.1L</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="mini-panel">
+              <div class="section-header compact">
+                <h3>Healthy picks</h3>
+                <a href="#">More</a>
+              </div>
+
+              <ul class="pick-list">
+                <li>
+                  <span class="pick-dot green"></span>
+                  Kale salad bowl
+                </li>
+                <li>
+                  <span class="pick-dot orange"></span>
+                  Chickpea wraps
+                </li>
+                <li>
+                  <span class="pick-dot red"></span>
+                  Salmon quinoa box
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const primaryButton = document.querySelector('.primary-btn');
+        const ghostButton = document.querySelector('.ghost-btn');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        navItems.forEach((item) => {
+          item.addEventListener('click', (event) => {
+            event.preventDefault();
+            navItems.forEach((nav) => nav.classList.remove('active'));
+            item.classList.add('active');
+          });
+        });
+
+        if (primaryButton) {
+          primaryButton.addEventListener('click', () => {
+            primaryButton.textContent = 'Meal generated';
+            primaryButton.disabled = true;
+            primaryButton.style.opacity = '0.88';
+          });
+        }
+
+        if (ghostButton) {
+          ghostButton.addEventListener('click', () => {
+            ghostButton.textContent = 'Updated plan';
+            setTimeout(() => {
+              ghostButton.textContent = 'Weekly plan';
+            }, 1200);
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
